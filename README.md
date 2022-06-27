@@ -1,0 +1,24 @@
+The Split the Bill project is used for equally splitting multiple bills into individual person.
+
+For example, supposed we have 2 bills:
+1st bill is for $150.15 at a bar and the people involved are Joe, Donald, and Barack.
+2nd bill is for $120.12 at a mexican restaurant and the people involved are Joe, Barack, and George.
+
+The input to the Split the Bill is a CSV format of Cost,Description,Pipe-delimited list of names.
+The example above would look like this:
+150.15,a bar,Joe|Donald|Barack
+120.12,mexican restaurant,Joe|Barack|George
+
+The following output is expected:
+Joe	    $ 90.09
+Donald	$ 50.05
+Barack	$ 90.09
+George	$ 40.04
+
+Here's the math:
+$150.15 is split evenly among Joe, Donald, and Barack at $50.05 each.
+$120.12 is split evenly among Joe, Barack, and George at $40.04 each.
+Joe's share of the bills is $50.05 + $40.04 = $90.09.
+Donald's share of the bills is $50.05.
+Barack's share of the bills is $50.05 + $40.04 = $90.09.
+George's share of the bills is $40.04.
