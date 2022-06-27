@@ -24,20 +24,27 @@
 					}
 					else {
 						var nameToShareMap = new Map();
+						var totalCost = 0;
 						
 						$.each(lineItems, function( index, row ) {
 							var rowItems = row.split(",");
-							var cost = rowItems[0];
+							var cost = +(rowItems[0]);
 							var namesPipeDelimited = rowItems[2];
 							var names = namesPipeDelimited.split("|");
 							var sharePerPerson = cost / names.length;
 							
 							addToEachName(nameToShareMap, sharePerPerson, names);
+							totalCost += cost;
 						});
 						
+						var shareSum = 0;
 						for (var [name, share] of nameToShareMap.entries()) {
-							$("#share-table tbody").append(rowHtml(name, share));
+							var shareRounded = +(share.toFixed(2));
+							shareSum += shareRounded;
+							$("#share-table tbody").append(rowHtml(name, shareRounded));
 						}
+						$("#total-cost").html("<h3>Total cost: " + totalCost + "</h3>");
+						$("#share-table tbody").append(rowHtml("Sum", shareSum));
 					}
 				});
 			});
@@ -72,6 +79,9 @@
 		<div class="container mt-5">
 			<h2><span class="label label-default">Line items</span></h2>
 			<textarea id="line-items-textarea" class="form-control" placeholder="CSV format (Cost,Description,Pipe-delimited list of names)"></textarea>
+			
+			<div id="total-cost" class="mt-3">
+			</div>
 			
 			<div class="mt-3">
 				<button id="split-button" class="btn btn-primary" type="button">Split the bill</button>
