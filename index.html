@@ -43,7 +43,7 @@
 							shareSum += shareRounded;
 							$("#share-table tbody").append(rowHtml(name, shareRounded));
 						}
-						$("#total-cost").html("<h3>Total cost: " + totalCost + "</h3>");
+						$("#total-cost").html("<h3>Total cost: $ " + totalCost.toFixed(2) + "</h3>");
 						$("#share-table tbody").append(rowHtml("Sum", shareSum));
 					}
 				});
