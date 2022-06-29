@@ -17,47 +17,63 @@
 				$("#split-button").click(function(){
 					$("#share-table tbody").empty();
 					
-					var lineItems = $("#line-items-textarea").val().split("\n");
+					let lineItems = $("#line-items-textarea").val().split("\n");
 					
 					if(typeof(lineItems[0]) === 'undefined') {
 						return null;
 					}
 					else {
-						var nameToShareMap = new Map();
+						let shareJson = {
+							people: []
+						};
 						var totalCost = 0;
 						
 						$.each(lineItems, function( index, row ) {
-							var rowItems = row.split(",");
-							var cost = +(rowItems[0]);
-							var namesPipeDelimited = rowItems[2];
-							var names = namesPipeDelimited.split("|");
-							var sharePerPerson = cost / names.length;
+							let rowItems = row.split(",");
+							let cost = +(rowItems[0]);
+							let description = +(rowItems[1]);
+							let namesPipeDelimited = rowItems[2];
+							let names = namesPipeDelimited.split("|");
+							let sharePerPerson = cost / names.length;
 							
-							addToEachName(nameToShareMap, sharePerPerson, names);
+							addShareToEachPerson(shareJson, sharePerPerson, description, names);
 							totalCost += cost;
 						});
 						
-						var shareSum = 0;
-						for (var [name, share] of nameToShareMap.entries()) {
-							var shareRounded = +(share.toFixed(2));
-							shareSum += shareRounded;
-							$("#share-table tbody").append(rowHtml(name, shareRounded));
-						}
+						let peopleSum = 0;
+						$.each(shareJson.people, function (index, person) {
+							let sumPerPerson = person.shares.map(s => s.cost).reduce((a, b) => +((a + b).toFixed(2)), 0);
+							peopleSum += +(sumPerPerson.toFixed(2));
+							$("#share-table tbody").append(rowHtml(person.name, sumPerPerson));
+						});
+						
 						$("#total-cost").html("<h3>Total cost: $ " + totalCost.toFixed(2) + "</h3>");
-						$("#share-table tbody").append(rowHtml("Sum", shareSum));
+						$("#share-table tbody").append(rowHtml("Sum", peopleSum));
 					}
 				});
 			});
 			
-			function addToEachName(nameToShareMap, additionalShare, names) {
+			function addShareToEachPerson(shareJson, sharePerPerson, description, names) {
 				$.each(names, function( index, name ) {
-					var currentShare = 0;
+					let people = shareJson.people.filter(p => p.name === name);
+					let person;
 					
-					if (nameToShareMap.has(name)) {
-						currentShare = nameToShareMap.get(name);
+					if (people.length === 0) {
+						shareJson.people.push({
+							name: name,
+							shares: []
+						});
+						
+						person = shareJson.people.filter(p => p.name === name)[0];
+					}
+					else {
+						person = people[0];
 					}
 					
-					nameToShareMap.set(name, currentShare + additionalShare);
+					person.shares.push({
+						description: description,
+						cost: +(sharePerPerson.toFixed(2))
+					});
 				});
 			}
 			
