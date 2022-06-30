@@ -57,10 +57,10 @@
 
             function toCents(dollars) {
                 if (typeof dollars === "number") {
-                    return parseInt(dollars * 100);
+                    return Math.round(dollars * 100);
                 }
                 else if (typeof dollars === "string") {
-                    return parseInt(dollars) * 100 + parseInt(parseFloat(dollars) * 100 % 100);
+                    return parseInt(dollars) * 100 + Math.round(parseFloat(dollars) * 100 % 100);
                 }
 
                 return NaN;
