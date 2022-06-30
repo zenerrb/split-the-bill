@@ -31,7 +31,7 @@
 						$.each(lineItems, function( index, row ) {
 							let rowItems = row.split(",");
                             let cost = toCents(rowItems[0]);
-							let description = +(rowItems[1]);
+							let description = rowItems[1];
 							let namesPipeDelimited = rowItems[2];
 							let names = namesPipeDelimited.split("|");
 							let sharePerPerson = Math.round(cost / names.length);
@@ -43,13 +43,14 @@
 						let peopleSum = 0;
 						$.each(shareJson.people, function (index, person) {
 							let sumPerPerson = person.shares.map(s => s.cost).reduce((a, b) => a + b, 0);
+							let breakdown = person.shares.map(s => `<div>$${(s.cost / 100).toFixed(2)} - ${s.description}</div>`).join("");
 							
-							$("#share-table tbody").append(rowHtml(person.name, sumPerPerson));
+							$("#share-table tbody").append(rowHtml(person.name, sumPerPerson, breakdown));
                             peopleSum += sumPerPerson;
 						});
 						
 						$("#total-cost").html("<h3>Total cost: $" + (totalCost / 100).toFixed(2) + "</h3>");
-						$("#share-table tbody").append(rowHtml("Sum", peopleSum));
+                        $("#share-table tbody").append(rowHtml("Sum", peopleSum, ""));
 					}
 				});
 			});
@@ -89,11 +90,12 @@
 				});
 			}
 			
-			function rowHtml(name, share) {
+			function rowHtml(name, share, breakdown) {
 				return `
 					<tr>
 						<td>${name}</td>
 						<td>$${(share / 100).toFixed(2)}</td>
+						<td>${breakdown}</td>
 					</tr>
 				`
 			}
@@ -120,6 +122,7 @@
 					<tr>
 						<th class="th-lg">Name</th>
 						<th>Share</th>
+						<th>Breakdown</th>
 					</tr>
 				</thead>
 				<tbody>
