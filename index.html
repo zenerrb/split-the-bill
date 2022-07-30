@@ -27,16 +27,25 @@
 							people: []
 						};
 						let totalCost = 0;
+						let validationErrorMessage = "";
 						
 						$.each(lineItems, function( index, row ) {
 							row = row.trim();
 							
 							if (row === "")
 							{
-								return false;
+								return true;
 							}
 							
 							let rowItems = row.split(",");
+							
+							if (rowItems.length != 3)
+							{
+								validationErrorMessage = `Row ${index + 1} (${row}) has too many commas. Do not use commas to separate the names.`;
+								
+								return false;
+							}
+							
                             let cost = toCents(rowItems[0]);
 							let description = rowItems[1];
 							let namesPipeDelimited = rowItems[2];
@@ -47,6 +56,14 @@
 							totalCost += cost;
 						});
 						
+						if (validationErrorMessage != "")
+						{
+							$("#line-items-textarea").addClass('is-invalid');
+							$("#message").html(`<div class="text-danger">${validationErrorMessage}</div>`);
+							
+							return;
+						}
+						
 						let peopleSum = 0;
 						$.each(shareJson.people, function (index, person) {
 							let sumPerPerson = person.shares.map(s => s.cost).reduce((a, b) => a + b, 0);
@@ -56,8 +73,15 @@
                             peopleSum += sumPerPerson;
 						});
 						
-						$("#total-cost").html("<h3>Total cost: $" + (totalCost / 100).toFixed(2) + "</h3>");
-                        $("#share-table tbody").append(rowHtml("Sum", peopleSum, ""));
+						$("#message").html(`<div>
+							Total cost from the line items above: 
+							$${(totalCost / 100).toFixed(2)}.
+							This might not be equal to the calculated sum below due to rounding
+							off individual contributions to the nearest cent.
+							This happens when a line item is not divisible by the
+							corresponding number of people (e.g., $10 into 3 people).</div>`);
+                        $("#line-items-textarea").addClass('is-valid');
+						$("#share-table tbody").append(rowHtml("Sum", peopleSum, ""));
 					}
 				});
 			});
@@ -75,16 +99,18 @@
 
 			function addShareToEachPerson(shareJson, sharePerPerson, description, names) {
 				$.each(names, function( index, name ) {
-					let people = shareJson.people.filter(p => p.name === name);
+					name = name.trim();
+					
+					let people = shareJson.people.filter(p => p.name.toUpperCase() === name.toUpperCase());
 					let person;
 					
 					if (people.length === 0) {
-						shareJson.people.push({
+						person = {
 							name: name,
 							shares: []
-						});
+						}
 						
-						person = shareJson.people.filter(p => p.name === name)[0];
+						shareJson.people.push(person);
 					}
 					else {
 						person = people[0];
@@ -122,16 +148,17 @@
 				placeholder="CSV format (Cost,Description,Pipe-delimited list of names)"
 				style="white-space: pre-wrap;">
 150.15,hotel night 1,Joe|Donald|Barack
-120.12,hotel night 2,Joe|Barack|George
-90,dinner 1,Joe|Donald|Barack
-30.30,parking 1,Joe|Barack|George
+120.12,hotel night 2,Joe|barack|George
+90,dinner,Joe|donald|barack
+30,lunch,Donald | Barack | george
+30.30,parking,joe|donald|George
 			</textarea>
 			
-			<div id="total-cost" class="mt-3">
+			<div id="message" class="mt-3">
 			</div>
 			
 			<div class="mt-3">
-				<button id="split-button" class="btn btn-primary" type="button">Split the bill</button>
+				<button id="split-button" class="btn btn-primary" type="button">Split the Bill</button>
 			</div>
 			
 			<table id="share-table" class="table table-striped mt-3">
