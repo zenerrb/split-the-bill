@@ -29,6 +29,13 @@
 						let totalCost = 0;
 						
 						$.each(lineItems, function( index, row ) {
+							row = row.trim();
+							
+							if (row === "")
+							{
+								return false;
+							}
+							
 							let rowItems = row.split(",");
                             let cost = toCents(rowItems[0]);
 							let description = rowItems[1];
@@ -50,7 +57,7 @@
 						});
 						
 						$("#total-cost").html("<h3>Total cost: $" + (totalCost / 100).toFixed(2) + "</h3>");
-                        $("#share-table tbody").append(rowHtml("Sum", peopleSum, "Sum"));
+                        $("#share-table tbody").append(rowHtml("Sum", peopleSum, ""));
 					}
 				});
 			});
@@ -109,7 +116,16 @@
 		<div class="container mt-5">
 			<h2><span class="label label-default">Line items</span></h2>
 			<span class="lead text-muted">Format: CSV (Cost,Description,Pipe-delimited list of names)</span>
-			<textarea id="line-items-textarea" class="form-control" placeholder="CSV format (Cost,Description,Pipe-delimited list of names)">150.15,a bar,Joe|Donald|Barack&#13;&#10;120.12,mexican restaurant,Joe|Barack|George</textarea>
+			<textarea
+				id="line-items-textarea"
+				class="form-control"
+				placeholder="CSV format (Cost,Description,Pipe-delimited list of names)"
+				style="white-space: pre-wrap;">
+150.15,hotel night 1,Joe|Donald|Barack
+120.12,hotel night 2,Joe|Barack|George
+90,dinner 1,Joe|Donald|Barack
+30.30,parking 1,Joe|Barack|George
+			</textarea>
 			
 			<div id="total-cost" class="mt-3">
 			</div>
